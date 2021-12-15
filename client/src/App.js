@@ -1,23 +1,24 @@
 import logo from './logo.svg';
 import './App.css';
+import React from 'react';
+import { Router } from "@reach/router";
+import TriviaList from './components/TriviaHome';
+import TriviaForm from './components/AddTrivia';
+import Update from './components/EditTrivia';
+import PlayTrivia from './components/PlayTrivia';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Test
-        </a>
-      </header>
+
+      <Router>
+        <TriviaForm path="/new" />
+        <TriviaList path="/" />
+        <Update path="/trivias/:id/edit" />
+        <PlayTrivia path="/game" />
+
+
+      </Router>
     </div>
   );
 }

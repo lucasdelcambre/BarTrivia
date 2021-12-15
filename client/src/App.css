@@ -1,6 +1,47 @@
 .App {
   text-align: center;
 }
+#Question {
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 10px;
+  /* width: 80%; */
+  margin: 10px;
+  /* display: flex; */
+  justify-content: center;
+}
+.Error {
+  color:tomato;
+}
+#GuessDiv {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+#btnNext {
+  width: 100%;
+  color: white;
+  background-color: rgb(0, 26, 255);
+}
+#SubmitButton {
+  width: 100%;
+  color: white;
+  background-color: rgb(0, 26, 255);
+}
+#InputGuess {
+  width: 80%;
+  margin: 10px;
+  border: 2px solid black;
+  border-radius: 5px;
+
+}
+#Answer {
+display: none;
+}
+#Submit {
+  display: none;
+  }
 
 .App-logo {
   height: 40vmin;
@@ -35,4 +76,37 @@
   to {
     transform: rotate(360deg);
   }
+}
+.pet-form {
+  display: flex;
+  flex-direction: row;
+  border: 2px, 2px, black;
+  align-items: center;
+}
+.right {
+  margin-left: 20px;
+}
+.Add-Pet{
+  border-style: solid;
+}
+.skills {
+  display: flex;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.details {
+  margin-left: 30px;
+}
+.detail-box {
+margin-top: 10px;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+border-style: solid;
+/* align-items: left; */
 }
