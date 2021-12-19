@@ -44,6 +44,25 @@ const PlayTrivia = () => {
         document.getElementById("Answer").style.display = "block";
         document.getElementById("Submit").style.display = "block";
     }
+    const startGame = () => {
+        document.getElementById("StartGame").style.display = "block";
+        function countdown() {
+            var seconds = 60;
+            function tick() {
+                var counter = document.getElementById("counter");
+                seconds--;
+                counter.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
+                if (seconds > 0) {
+                    setTimeout(tick, 1000);
+                } else {
+                    displayAnswer()
+                }
+            }
+            tick();
+        }
+
+        countdown();
+    }
     const displayAnswer = () => {
         // var answerBoolean = false;
         // if(guess === "")
@@ -83,56 +102,65 @@ const PlayTrivia = () => {
         <div>
             <div className="header">
                 <h1>Play Trivia</h1>
+                <button onClick={startGame}>Click to Start Game</button>
                 <Link to={"/"}>Back to home</Link>
             </div>
-            <h4>Score: {score}</h4>
-            <p>
-                <button id="btnNext" onClick={nextQuestion}>Next Question</button>
-            </p>
-            <div id="Question">
-
-                <label>{question}</label>
-            </div>
-
-
-            <div id="GuessDiv">
-                <label> Guess:</label>
-                <input id="InputGuess" type="text" onChange={(e) => setGuess(e.target.value)}
-                    value={guess}
-                />
-            </div>
-
-            <div id="Submit">
-                {
-                    correctBoolean ?
-                        <p>
-                            Correct Answer!
-                        </p>
-                        : <p>
-                            Incorrect!
-                        </p>
-                }
-
-                {errorMessage ?
-                    <p className="Error">
-                        Guess cannot be blank
-                    </p>
-                    : <></>
-                }
-            </div>
-
-
-
-            <button id="SubmitButton" onClick={displayAnswer}>Submit</button>
-            <p>
-                <label>Guess:{guess}</label>
-            </p>
-            <div id="Answer">
-                Answer:
-                <label id="Question">{answers}</label>
+            <div id="StartGame">
                 <div>
-                    Tidbit:
-                    <label id="Question">{tidbit}</label>
+                    <h4 id="counter"></h4>
+                    <h4>Score: {score}</h4>
+                </div>
+
+
+                <p>
+                    <button id="btnNext" onClick={nextQuestion}>Next Question</button>
+                </p>
+                <div id="Question">
+
+                    <label>{question}</label>
+                </div>
+
+
+                <div id="GuessDiv">
+                    <label> Guess:</label>
+                    <input id="InputGuess" type="text" onChange={(e) => setGuess(e.target.value)}
+                        value={guess}
+                    />
+                </div>
+
+                <div id="Submit">
+                    {
+                        correctBoolean ?
+                            <p>
+                                Correct Answer!
+                            </p>
+                            : <p>
+                                Incorrect!
+                            </p>
+                    }
+
+                    {errorMessage ?
+                        <p className="Error">
+                            Guess cannot be blank
+                        </p>
+                        : <></>
+                    }
+                </div>
+
+
+
+                <button id="SubmitButton" onClick={displayAnswer}>Submit</button>
+                <p>
+                    <label>Guess:{guess}</label>
+                </p>
+                <div id="Answer">
+                    Answer:
+                    <label id="Question">{answers}</label>
+                    <div>
+                        Tidbit:
+                        <label id="Question">{tidbit}</label>
+                    </div>
+
                 </div>
 
             </div>

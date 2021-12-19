@@ -13,9 +13,9 @@ function App() {
 
       <Router>
         <TriviaForm path="/new" />
-        <TriviaList path="/" />
+        <TriviaList path="/list" />
         <Update path="/trivias/:id/edit" />
-        <PlayTrivia path="/game" />
+        <PlayTrivia path="/" />
 
 
       </Router>

@@ -36,6 +36,9 @@
   border-radius: 5px;
 
 }
+#StartGame{
+  display: none;
+}
 #Answer {
 display: none;
 }
