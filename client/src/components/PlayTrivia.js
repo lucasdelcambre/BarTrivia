@@ -1,180 +1,145 @@
+import '../App.css';
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link } from '@reach/router';
 
-const PlayTrivia = () => {
-    // const { id } = props;
-    const [question, setQuestion] = useState("");
-    const [tidbit, setTidbit] = useState("");
+const PlayTrivia = (props) => {
+    const { socket } = (props);
+
+    const [playersData, setPlayersData] = useState({});
+    const [triviaGameState, setTriviaGameState] = useState({});
     const [guess, setGuess] = useState("");
-    const [correctBoolean, setCorrectBoolean] = useState(false)
-    const [nextBoolean, setNextBoolean] = useState(false)
-    const [answers, setAnswers] = useState([]);
-    const [score, setScore] = useState(0);
-    const [errorMessage, setErrorMessage] = useState(false);
-    // var score = 0;
-    // const [answerStr, setAnswerStr] = useState("");
+    const [errorMessage, setErrorMessage] = useState('');
+    const [timerId, setTimerId] = useState('');
 
-    // const displayAnswer = () => {
-    //     document.getElementById("Answer").style.display = "Block";
-    // }
     useEffect(() => {
-        axios.get(`http://localhost:8001/api/random`)
-            .then(res => {
-                console.log(res.data);
-                setQuestion(res.data.question);
-                setTidbit(res.data.tidbit);
-                setAnswers(res.data.answers);
+        // Update the state of all the players in the game when the server sends an update.
+        socket.on('updatePlayersData', (data) => setPlayersData(data));
 
+        // Set the current trivia question when the server sends one.
+        socket.on('newRound', (data) => {
+            clearTimeout(timerId);
+            setTriviaGameState(data);
+            document.getElementById('guessInput').disabled = false;
+            document.getElementById('guessSubmitBtn').disabled = false;
+            startQuestionTimer(60);
+        });
 
+        socket.on('gameStarting', (data) => {
+            setTriviaGameState(data);
+            startGame();
+        });
 
-            })
-            .catch(err => console.log(err))
-    }, [nextBoolean]);
+        socket.on('gameOver', (data) => {
+            setTriviaGameState(data);
+            document.getElementById('startGameBtn').disabled = false;
+        })
+    });
 
-    const nextQuestion = () => {
-        setNextBoolean(!nextBoolean);
-        document.getElementById("Answer").style.display = "none";
-        document.getElementById("Submit").style.display = "none";
-        setCorrectBoolean(false);
-        setErrorMessage(false);
-        setGuess("");
+    const submitGuess = (e) => {
+        e.preventDefault();
+        setErrorMessage('');
+        // If the answer is valid, send it to the server and disabled the input for the rest of the round.
+        if(guess.length > 0){
+            socket.emit('guessSubmission', guess);
+            console.log('answer submitted');
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('guessSubmitBtn').disabled = true;
+        }
+        else {
+            setErrorMessage('Answer cannot be blank.');
+        }
     }
-    const styleAnswerSubmit = () => {
-        document.getElementById("Answer").style.display = "block";
-        document.getElementById("Submit").style.display = "block";
+
+    const requestGameStart = () => {
+        document.getElementById('startGameBtn').disabled = true;
+        socket.emit('startGame');
     }
+
     const startGame = () => {
-        document.getElementById("StartGame").style.display = "block";
-        function countdown() {
-            var seconds = 60;
-            function tick() {
-                var counter = document.getElementById("counter");
-                seconds--;
-                counter.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
-                if (seconds > 0) {
-                    setTimeout(tick, 1000);
-                } else {
-                    displayAnswer()
-                }
-            }
-            tick();
-        }
-
-        countdown();
-    }
-    const displayAnswer = () => {
-        // var answerBoolean = false;
-        // if(guess === "")
-
-        if (guess.length < 1) {
-            setErrorMessage(!errorMessage);
-            styleAnswerSubmit();
-            return
-
-        }
-        for (var i = 0; i < answers.length; i++) {
-            console.log(answers[i]);
-            if (answers[i] === guess && guess.length > 0) {
-                setCorrectBoolean(!correctBoolean);
-                setScore(score + 1);
-
-
-            }
-        }
-
-        styleAnswerSubmit();
-        console.log(correctBoolean);
-        console.log(guess);
-        console.log(errorMessage);
-
-
-        //     // console.log(guess);
-        //     // setCorrectBoolean = setAnswers.contains(guess => { guess == })
-        // }
+        startQuestionTimer(60);
+        document.getElementById('startGameBtn').disabled = true;
     }
 
-    // const btnNext = document.getElementById("btnNext");
-    // btnNext.addEventListener('click', function () {
+    const startQuestionTimer = (seconds) => {
+        function oneSecondTick() {
+            seconds--;
+            const timer = document.getElementById('timer');
+            timer.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
+            if (seconds > 0) {
+                setTimerId(setTimeout(oneSecondTick, 1000));
+            }
+            else {
+                socket.emit('guessSubmission', "You didn't answer in time!");
+            }
+        }
+        oneSecondTick();
+    }
 
-    // });
     return (
         <div>
             <div className="header">
                 <h1>Play Trivia</h1>
-                <button onClick={startGame}>Click to Start Game</button>
                 <Link to={"/"}>Back to home</Link>
             </div>
-            <div id="StartGame">
-                <div>
-                    <h4 id="counter"></h4>
-                    <h4>Score: {score}</h4>
-                </div>
 
+            <div id='game'>
+                <button id='startGameBtn' onClick={requestGameStart}>Click to Start Game</button>
+                <h4 id='timer'>1:00</h4>
 
-                <p>
-                    <button id="btnNext" onClick={nextQuestion}>Next Question</button>
-                </p>
-                <div id="Question">
-
-                    <label>{question}</label>
-                </div>
-
-
-                <div id="GuessDiv">
-                    <label> Guess:</label>
-                    <input id="InputGuess" type="text" onChange={(e) => setGuess(e.target.value)}
-                        value={guess}
-                    />
-                </div>
-
-                <div id="Submit">
-                    {
-                        correctBoolean ?
-                            <p>
-                                Correct Answer!
-                            </p>
-                            : <p>
-                                Incorrect!
-                            </p>
-                    }
-
-                    {errorMessage ?
-                        <p className="Error">
-                            Guess cannot be blank
-                        </p>
-                        : <></>
-                    }
-                </div>
-
-
-
-                <button id="SubmitButton" onClick={displayAnswer}>Submit</button>
-                <p>
-                    <label>Guess:{guess}</label>
-                </p>
-                <div id="Answer">
-                    Answer:
-                    <label id="Question">{answers}</label>
+                {
+                    triviaGameState.running ?
                     <div>
-                        Tidbit:
-                        <label id="Question">{tidbit}</label>
+                        <p id='roundCounter'>Round {triviaGameState.roundCount}</p>
+                        <p id='question'>{triviaGameState.currentQuestion.question}</p>
                     </div>
+                    :null
+                }
 
-                </div>
+                <form onSubmit={submitGuess}>
+                    <label>Guess: </label>
+                    <input 
+                        id='guessInput'
+                        type="text"
+                        onChange={(e) => setGuess(e.target.value)}
+                        value={guess}
+                        name='guess'
+                    />
+                    <button id='guessSubmitBtn'>Submit guess</button>
+                </form>
 
+                <table id='scoreBoard'>
+                    <thead>
+                        <tr>
+                            <td>Player</td>
+                            <td>Score</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            playersData ?
+                                Object.keys(playersData).map((player, index) => (
+                                    <tr key={player}>
+                                        {
+                                            player === socket.id ?
+                                            <td className='you'>{player} (You)</td>
+                                            :
+                                            <td>{player}</td>
+                                        }
+                                        {
+                                            player === socket.id ?
+                                            <td className='you'>{playersData[player].score}</td>
+                                            :
+                                            <td>{playersData[player].score}</td>
+                                        }
+                                    </tr>
+                                ))
+                                :null
+                        }
+                    </tbody>
+                </table>
             </div>
-
-
-
-
         </div >
-
-
-
-
-    )
-
+    );
 };
 
 export default PlayTrivia;

@@ -1,7 +1,7 @@
 .App {
   text-align: center;
 }
-#Question {
+#question {
   border: 2px solid black;
   border-radius: 5px;
   padding: 10px;
@@ -36,15 +36,6 @@
   border-radius: 5px;
 
 }
-#StartGame{
-  display: none;
-}
-#Answer {
-display: none;
-}
-#Submit {
-  display: none;
-  }
 
 .App-logo {
   height: 40vmin;
@@ -112,4 +103,13 @@ flex-direction: column;
 align-items: flex-start;
 border-style: solid;
 /* align-items: left; */
+}
+
+.you {
+  font-weight: bold;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
 }
