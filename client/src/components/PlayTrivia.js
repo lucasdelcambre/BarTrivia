@@ -33,21 +33,24 @@ const PlayTrivia = (props) => {
             setTriviaGameState(data);
             document.getElementById('startGameBtn').disabled = false;
         })
-    });
+    }, []);
 
     const submitGuess = (e) => {
         e.preventDefault();
         setErrorMessage('');
         // If the answer is valid, send it to the server and disabled the input for the rest of the round.
-        if(guess.length > 0){
+        if (guess.length > 0) {
             socket.emit('guessSubmission', guess);
             console.log('answer submitted');
-            document.getElementById('guessInput').disabled = true;
-            document.getElementById('guessSubmitBtn').disabled = true;
+
         }
         else {
             setErrorMessage('Answer cannot be blank.');
         }
+    }
+    const styleAnswerSubmit = () => {
+        document.getElementById('guessInput').disabled = true;
+        document.getElementById('guessSubmitBtn').disabled = true;
     }
 
     const requestGameStart = () => {
@@ -56,7 +59,7 @@ const PlayTrivia = (props) => {
     }
 
     const startGame = () => {
-        startQuestionTimer(60);
+        startQuestionTimer(15);
         document.getElementById('startGameBtn').disabled = true;
     }
 
@@ -69,11 +72,30 @@ const PlayTrivia = (props) => {
                 setTimerId(setTimeout(oneSecondTick, 1000));
             }
             else {
+                startWaitTimer(15)
                 socket.emit('guessSubmission', "You didn't answer in time!");
             }
         }
         oneSecondTick();
     }
+
+    const startWaitTimer = (seconds) => {
+        function oneSecondTick() {
+            seconds--;
+            const timer = document.getElementById('timer');
+            timer.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
+            if (seconds > 0) {
+                setTimerId(setTimeout(oneSecondTick, 1000));
+            }
+            else {
+                submitGuess();
+                socket.emit('guessSubmission', "You didn't answer in time!");
+            }
+        }
+        oneSecondTick();
+    }
+
+
 
     return (
         <div>
@@ -84,20 +106,22 @@ const PlayTrivia = (props) => {
 
             <div id='game'>
                 <button id='startGameBtn' onClick={requestGameStart}>Click to Start Game</button>
-                <h4 id='timer'>1:00</h4>
+                <h4 id='timer'>:15</h4>
 
                 {
                     triviaGameState.running ?
-                    <div>
-                        <p id='roundCounter'>Round {triviaGameState.roundCount}</p>
-                        <p id='question'>{triviaGameState.currentQuestion.question}</p>
-                    </div>
-                    :null
+                        <div>
+                            <p id='roundCounter'>Round {triviaGameState.roundCount}</p>
+                            <p id='question'>{triviaGameState.currentQuestion.question}</p>
+                        </div>
+                        : null
                 }
 
-                <form onSubmit={submitGuess}>
+                <form
+                    onSubmit={styleAnswerSubmit}
+                >
                     <label>Guess: </label>
-                    <input 
+                    <input
                         id='guessInput'
                         type="text"
                         onChange={(e) => setGuess(e.target.value)}
@@ -121,19 +145,19 @@ const PlayTrivia = (props) => {
                                     <tr key={player}>
                                         {
                                             player === socket.id ?
-                                            <td className='you'>{player} (You)</td>
-                                            :
-                                            <td>{player}</td>
+                                                <td className='you'>{player} (You)</td>
+                                                :
+                                                <td>{player}</td>
                                         }
                                         {
                                             player === socket.id ?
-                                            <td className='you'>{playersData[player].score}</td>
-                                            :
-                                            <td>{playersData[player].score}</td>
+                                                <td className='you'>{playersData[player].score}</td>
+                                                :
+                                                <td>{playersData[player].score}</td>
                                         }
                                     </tr>
                                 ))
-                                :null
+                                : null
                         }
                     </tbody>
                 </table>
